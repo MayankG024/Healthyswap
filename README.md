@@ -47,10 +47,13 @@ The algorithm automatically flags issues and generates fixes. No guesswork.
 
 **Other Cool Stuff:** Sonner (toast notifications), Lucide React (icons), date-fns
 
-## 🚀 Deployment
+## 🚀 Live Demo & Deployment
 
-Deployed on Vercel for that sweet, sweet performance.
-check bio for the link.
+**Live App:** [https://mayankg024.github.io/Healthyswap/](https://mayankg024.github.io/Healthyswap/)
+
+**Repository:** [https://github.com/MayankG024/Healthyswap](https://github.com/MayankG024/Healthyswap)
+
+Deployed using GitHub Pages with automated CI/CD via GitHub Actions. Every push to main branch triggers a new build and deployment.
 
 ## 📱 Sample Meals in Database
 
