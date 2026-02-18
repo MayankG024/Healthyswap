@@ -1,0 +1,92 @@
+# AI Agent Guidelines
+
+## Project Overview
+React + TypeScript meal analyzer with deterministic nutrition rules.
+
+## Core Rules
+
+### TypeScript & Components
+- Strict typing, no `any` unless necessary
+- Functional components with hooks only
+- Immutable state updates
+- Components < 300 lines
+
+### Architecture
+- **State**: Zustand for global, useState for UI-only
+- **File Structure**: `src/app/{components, store, utils}`
+- **Styling**: Tailwind CSS only, no inline styles
+- **Animation**: Framer Motion, < 300ms, opacity/transform only
+
+### Nutrition Rules (CRITICAL - DO NOT MODIFY)
+```
+Calories > 800 → 35% reduction
+Protein < 20g → boost to 30g
+Fat > 25g → 50% reduction
+Fiber < 5g → increase to 8g+
+Sugar > 12g → 50% reduction
+```
+**Never change these thresholds without explicit approval.**
+
+### Design Tokens
+- Colors: Orange `#FFB347`, Green `#6BCF7F`, Yellow `#FFD93D`
+- Fonts: Bebas Neue (headings), Fredoka (body), Righteous (accents)
+
+## Component Pattern
+```tsx
+interface Props {
+  required: string;
+  optional?: number;
+}
+
+export default function Component({ required, optional = 0 }: Props) {
+  const [state, setState] = useState<Type>(initial);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="..."
+    >
+      {/* Content */}
+    </motion.div>
+  );
+}
+```
+
+## Async Pattern
+```tsx
+const handleSubmit = async (data: DataType) => {
+  toast.loading('Processing...', { id: 'action' });
+  try {
+    const result = await processData(data);
+    toast.success('Success!', { id: 'action' });
+  } catch {
+    toast.error('Failed. Try again.', { id: 'action' });
+  }
+};
+```
+
+## Adding Meals
+Required fields: `name`, `image`, `calories`, `protein`, `carbs`, `fat`, `fiber`, `sugar`, `factors`, `swaps`, `cookingMethod`, `portionTip`
+
+Validation: Calories 100-1500, Protein 5-80g, macros should sum logically.
+
+## Checklist
+- [ ] No unused imports/console.logs
+- [ ] All props typed
+- [ ] Error handling for async ops
+- [ ] Responsive design
+- [ ] Accessible (ARIA labels, keyboard nav)
+
+## Naming
+- Components: `PascalCase.tsx`
+- Functions: `camelCase()`
+- Constants: `UPPER_SNAKE_CASE`
+- Hooks: `useCamelCase()`
+
+## What NOT to Do
+❌ Change nutrition thresholds  
+❌ Use `any` type  
+❌ Mutate state directly  
+❌ Add inline styles  
+❌ Use var/class components
