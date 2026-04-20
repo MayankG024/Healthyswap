@@ -83,16 +83,16 @@ export default function UploadCard({ onSubmit, isAnalyzing }: UploadCardProps) {
   };
 
   const quickSuggestions = [
-    { text: 'Butter chicken 🐓', color: 'bg-[#FFB347]', textColor: 'text-[#8B4000]' },
-    { text: 'Instant noodles 🍜', color: 'bg-[#FFE082]', textColor: 'text-[#E65100]' },
-    { text: 'Fried rice 🍚', color: 'bg-[#81C784]', textColor: 'text-[#1B5E20]' },
-    { text: 'Pizza 🍕', color: 'bg-[#F48FB1]', textColor: 'text-[#880E4F]' },
-    { text: 'Biryani 🍛', color: 'bg-[#FFAB91]', textColor: 'text-[#BF360C]' },
-    { text: 'Samosa 🥟', color: 'bg-[#FFF59D]', textColor: 'text-[#F57F17]' },
-    { text: 'Paneer masala 🧀', color: 'bg-[#CE93D8]', textColor: 'text-[#4A148C]' },
-    { text: 'Chole bhature 🫓', color: 'bg-[#90CAF9]', textColor: 'text-[#01579B]' },
-    { text: 'Dosa 🥞', color: 'bg-[#A5D6A7]', textColor: 'text-[#2E7D32]' },
-    { text: 'Burger & fries 🍔', color: 'bg-[#FFCC80]', textColor: 'text-[#E65100]' }
+    { text: 'Butter chicken 🐓' },
+    { text: 'Instant noodles 🍜' },
+    { text: 'Fried rice 🍚' },
+    { text: 'Pizza 🍕' },
+    { text: 'Biryani 🍛' },
+    { text: 'Samosa 🥟' },
+    { text: 'Paneer masala 🧀' },
+    { text: 'Chole bhature 🫓' },
+    { text: 'Dosa 🥞' },
+    { text: 'Burger & fries 🍔' }
   ];
 
   return (
@@ -225,7 +225,7 @@ export default function UploadCard({ onSubmit, isAnalyzing }: UploadCardProps) {
                 <button
                   key={idx}
                   onClick={() => setTextInput(suggestion.text.replace(/[^\w\s]/gi, '').trim())}
-                  className={`px-6 py-3 ${suggestion.color} ${suggestion.textColor} rounded-2xl font-black hover:scale-105 hover:shadow-lg transition-all border-2 border-white shadow-md text-base`}
+                  className="px-6 py-3 bg-white text-gray-800 rounded-2xl font-bold hover:scale-105 hover:shadow-md transition-all border-2 border-gray-100 shadow-sm text-base"
                   disabled={isAnalyzing}
                   style={{ fontFamily: 'Fredoka' }}
                 >

@@ -103,19 +103,19 @@ export default function App() {
                     className="flex flex-wrap justify-center gap-4 mt-12"
                   >
                     {[
-                      { icon: '📸', text: 'Upload Any Food Photo', color: 'bg-[#96E6FF]', textColor: 'text-[#0277BD]' },
-                      { icon: '⚡', text: 'Instant AI Analysis', color: 'bg-[#FFD93D]', textColor: 'text-[#FF9800]' },
-                      { icon: '🎯', text: 'Smart Ingredient Swaps', color: 'bg-[#FFB8D1]', textColor: 'text-[#D81B60]' },
-                      { icon: '💪', text: 'Better Health Goals', color: 'bg-[#C490E4]', textColor: 'text-[#7B1FA2]' },
+                      { icon: '📸', text: 'Upload Any Food Photo' },
+                      { icon: '⚡', text: 'Instant AI Analysis' },
+                      { icon: '🎯', text: 'Smart Ingredient Swaps' },
+                      { icon: '💪', text: 'Better Health Goals' },
                     ].map((feature, idx) => (
                       <motion.div
                         key={idx}
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.5 + idx * 0.1 }}
-                        className={`px-6 py-3 ${feature.color} rounded-full shadow-md border-2 border-white`}
+                        className="px-6 py-3 bg-white text-gray-800 rounded-full shadow-sm border-2 border-gray-100"
                       >
-                        <span className={`text-lg font-bold ${feature.textColor}`}>
+                        <span className="text-lg font-bold">
                           {feature.icon} {feature.text}
                         </span>
                       </motion.div>
