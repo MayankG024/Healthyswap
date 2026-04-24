@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Filter, Heart, TrendingUp, Flame, Leaf } from 'lucide-react';
 import { motion } from 'motion/react';
 import ImageWithSkeleton from './ImageWithSkeleton';
+import { supabase } from '../utils/supabase';
 
 interface MealCard {
   id: string;
@@ -19,7 +20,7 @@ interface MealLibraryProps {
   onViewNutrition: (itemName: string) => void;
 }
 
-const meals: MealCard[] = [
+const fallbackMeals: MealCard[] = [
   {
     id: '1',
     name: 'Grilled Tandoori Chicken',
@@ -187,6 +188,47 @@ const filters = [
 export default function MealLibrary({ onViewNutrition }: MealLibraryProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [meals, setMeals] = useState<MealCard[]>(fallbackMeals);
+
+  useEffect(() => {
+    const fetchMeals = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('meal_library')
+          .select('*')
+          .order('name');
+        
+        if (!error && data && data.length > 0) {
+          const formattedMeals: MealCard[] = data.map((item: any) => {
+            const originalCalories = item.original_nutrition?.calories || 0;
+            const improvedCalories = item.improved_nutrition?.calories || 0;
+            const caloriesReduced = Math.max(0, originalCalories - improvedCalories);
+            
+            // Calculate a mock score if one isn't saved
+            const proteinScore = Math.min(100, (item.improved_nutrition?.protein || 0) * 3);
+            const score = Math.max(70, Math.min(99, 50 + proteinScore - (improvedCalories / 20)));
+
+            return {
+              id: item.id,
+              name: item.name,
+              originalName: item.original_nutrition?.name || 'Original Meal',
+              image: item.image_url || 'https://images.unsplash.com/photo-1543352632-5a4b24e4d2a6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+              calories: improvedCalories,
+              protein: item.improved_nutrition?.protein || 0,
+              tags: item.health_tags || [],
+              nutritionScore: Math.round(score),
+              caloriesReduced: caloriesReduced
+            };
+          });
+          setMeals(formattedMeals);
+        }
+      } catch (err) {
+        console.error('Failed to fetch meal library:', err);
+      }
+    };
+    
+    fetchMeals();
+  }, []);
 
   const filteredMeals = meals.filter(meal => {
     const matchesSearch = meal.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -209,10 +251,10 @@ export default function MealLibrary({ onViewNutrition }: MealLibraryProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-4xl sm:text-5xl text-gray-900 mb-4">
+          <h1 className="text-4xl sm:text-5xl text-gray-900 mb-4" style={{ fontFamily: 'Bebas Neue', letterSpacing: '1px' }}>
             Smart Meal Library
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-gray-600" style={{ fontFamily: 'Fredoka' }}>
             Explore healthier versions of popular dishes
           </p>
         </div>

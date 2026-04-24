@@ -37,13 +37,17 @@ The algorithm automatically flags issues and generates fixes. No guesswork.
 
 ## 🛠️ Tech Stack
 
-**Core:** React 18 + TypeScript + Vite (because fast dev experience matters)
+**Core:** React 18 + TypeScript + Vite + React Router DOM
 
-**Styling:** Tailwind CSS + Radix UI components (all the Dialog, Accordion, Dropdown stuff) + Custom fonts (Bebas Neue, Fredoka, Righteous)
+**Backend:** Supabase (PostgreSQL, Auth, Storage, Edge Functions)
 
-**Animation:** Framer Motion for those smooth transitions
+**AI Integration:** Gemini 2.5 Pro API
 
-**State:** Zustand (lightweight, no boilerplate nonsense)
+**Styling:** Tailwind CSS + Radix UI components + Custom fonts
+
+**Animation:** Framer Motion for smooth transitions
+
+**State:** Zustand (lightweight, handles auth state easily)
 
 **Other Cool Stuff:** Sonner (toast notifications), Lucide React (icons), date-fns
 
@@ -84,17 +88,47 @@ Kept it colorful and fun because eating healthy shouldn't feel like a chore:
 
 The UI is fully responsive and works great on mobile.
 
-## 🔮 What I'd Add Next
+## 🔮 What I'm Adding Now (V2 Capstone Upgrades)
 
-If this project gets traction , here's what's on my mind:
+I am actively transforming this into a real full-stack application using Supabase:
 
-- [ ] TensorFlow.js for actual image recognition (right now it's keyword-based)
-- [ ] User accounts to track meal history
-- [ ] Connect to real nutrition APIs (USDA, Nutritionix)
-- [ ] Generate grocery lists from the swaps
-- [ ] Meal planning calendar
-- [ ] Dark mode (because everyone wants dark mode)
-- [ ] PWA support for offline use
+- [x] Real user authentication (Google Auth)
+- [x] Real PostgreSQL Database schema for profiles, history, and meal library
+- [x] Supabase Edge Function to call Gemini 2.5 Pro for real AI analysis
+- [x] Real React Router setup for pages like `/dashboard`, `/login`, `/meal-library`
+- [ ] Image uploads to Supabase Storage
+
+## 🚀 Setup Instructions for the Backend
+
+If you are setting this up locally, please follow these steps since the backend requires environment variables and database tables:
+
+1. **Install Dependencies**
+   Run the following command in your terminal:
+   ```bash
+   npm install react-router-dom @supabase/supabase-js @google/genai lucide-react zustand
+   ```
+
+2. **Environment Variables**
+   Create a `.env` file in the root directory based on `.env.example`:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+3. **Supabase Database Setup**
+   Go to your Supabase Dashboard SQL Editor and run the `schema.sql` file located in the root of this project. It sets up:
+   - `profiles` table
+   - `meal_analyses` table
+   - `meal_library` table
+   - Storage buckets and RLS policies
+
+4. **Supabase Edge Function Deployment**
+   Make sure you have the Supabase CLI installed, and run:
+   ```bash
+   supabase secrets set --env-file ./supabase/.env.local
+   supabase functions deploy analyze-meal
+   ```
+   *(Make sure to set `GEMINI_API_KEY` in the Supabase secrets)*
 
 ## 🤔 Project Rationale
 

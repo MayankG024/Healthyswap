@@ -1,32 +1,34 @@
 import { create } from 'zustand';
 import { MealAnalysis } from '../utils/mealAnalyzer';
-
-type Page = 'home' | 'library' | 'nutrition' | 'personalized';
+import { User, Session } from '@supabase/supabase-js';
 
 interface AppState {
-  currentPage: Page;
   isAnalyzing: boolean;
   analysisResult: MealAnalysis | null;
   selectedMeal: string;
-  setCurrentPage: (page: Page) => void;
+  user: User | null;
+  session: Session | null;
   setIsAnalyzing: (isAnalyzing: boolean) => void;
   setAnalysisResult: (result: MealAnalysis | null) => void;
   setSelectedMeal: (meal: string) => void;
+  setUser: (user: User | null) => void;
+  setSession: (session: Session | null) => void;
   reset: () => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
-  currentPage: 'home',
   isAnalyzing: false,
   analysisResult: null,
   selectedMeal: '',
-  setCurrentPage: (page) => set({ currentPage: page }),
+  user: null,
+  session: null,
   setIsAnalyzing: (isAnalyzing) => set({ isAnalyzing }),
   setAnalysisResult: (result) => set({ analysisResult: result }),
   setSelectedMeal: (meal) => set({ selectedMeal: meal }),
+  setUser: (user) => set({ user }),
+  setSession: (session) => set({ session }),
   reset: () => set({ 
     analysisResult: null, 
-    currentPage: 'home',
     selectedMeal: ''
   }),
 }));
