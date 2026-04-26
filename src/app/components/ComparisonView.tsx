@@ -38,6 +38,7 @@ export default function ComparisonView({ analysis }: ComparisonViewProps) {
               alt={analysis.original.name}
               className="w-full h-full object-cover"
               skeletonClassName="w-full h-full"
+              loading="eager"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -100,6 +101,7 @@ export default function ComparisonView({ analysis }: ComparisonViewProps) {
               alt={analysis.improved.name}
               className="w-full h-full object-cover"
               skeletonClassName="w-full h-full"
+              loading="eager"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-6">

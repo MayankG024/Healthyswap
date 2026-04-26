@@ -19,7 +19,7 @@ We will use Supabase as our Backend-as-a-Service (BaaS) and keep the frontend as
 ---
 
 ## Phase 2: Supabase Backend Integration (In Progress)
-- [x] Create `schema.sql` for PostgreSQL tables (profiles, meal_analyses, meal_library, meal_plans, groceries)
+- [x] Create `schema.sql` for the core PostgreSQL tables currently used by the app (profiles, meal_analyses, meal_library)
 - [x] Create `useAppStore.ts` integration with Supabase Auth state
 - [x] Create `.env.example` file and configure Supabase client (`utils/supabase.ts`)
 - [x] Create `LoginPage.tsx` with Google Auth integration
@@ -108,7 +108,7 @@ Transition from state-based navigation to real routing using `react-router-dom`.
 - [ ] **Rendering:** Reuse `ComparisonView` for saved analysis rendering.
 
 ### 3. Meal Planner + Grocery List
-- [ ] **Database Setup:** Extend `schema.sql` with `meal_plans`, `meal_plan_items`, and `grocery_lists` if not already fully present.
+- [ ] **Database Setup:** Add SQL migrations for `meal_plans`, `meal_plan_items`, and `grocery_lists`; these models exist in `prisma/schema.prisma`, but `schema.sql` does not yet create the tables.
 - [ ] **Planner UI:** Replace the placeholder `MealPlanner` cards with selectable meals from `meal_library`.
 - [ ] **Time Slots:** Support weekly breakfast/lunch/dinner slots.
 - [ ] **Grocery Route:** Add `/grocery-list` route that groups ingredients from planned meals into Produce, Protein, Grains, Dairy, Spices, and Other.
@@ -129,4 +129,4 @@ Transition from state-based navigation to real routing using `react-router-dom`.
 - [ ] **Failure Check:** run with missing Supabase env vars and confirm the app shows graceful fallbacks instead of crashing.
 
 ## Open Questions
-- Do you want me to proceed with Phase 4 execution (starting with the Meal Library Expansion)?
+- Do you want me to proceed with Phase 6 execution (starting with the remaining Meal Planner and Grocery List work)?

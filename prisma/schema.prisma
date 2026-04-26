@@ -2,12 +2,12 @@
 // Uses Supabase PostgreSQL as the datasource
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["multiSchema"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  // Prisma 7 reads connection URLs from prisma.config.ts.
   schemas  = ["public"]
 }
 
@@ -73,6 +73,7 @@ model MealPlan {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   items MealPlanItem[]
+  groceryLists GroceryList[]
 
   @@unique([userId, weekStart])
   @@map("meal_plans")
@@ -100,6 +101,8 @@ model GroceryList {
   planId    String   @map("plan_id") @db.Uuid
   items     Json     // [{ name, category, quantity, unit, checked }]
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  plan MealPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
 
   @@map("grocery_lists")
   @@schema("public")

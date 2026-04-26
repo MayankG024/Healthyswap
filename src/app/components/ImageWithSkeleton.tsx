@@ -6,13 +6,15 @@ interface ImageWithSkeletonProps {
   alt: string;
   className?: string;
   skeletonClassName?: string;
+  loading?: 'eager' | 'lazy';
 }
 
 export default function ImageWithSkeleton({ 
   src, 
   alt, 
   className = '', 
-  skeletonClassName = '' 
+  skeletonClassName = '',
+  loading = 'lazy',
 }: ImageWithSkeletonProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -51,7 +53,7 @@ export default function ImageWithSkeleton({
         <img
           src={src}
           alt={alt}
-          loading="lazy"
+          loading={loading}
           decoding="async"
           className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
           onLoad={() => setIsLoading(false)}

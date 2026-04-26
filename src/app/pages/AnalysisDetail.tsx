@@ -6,6 +6,9 @@ import ComparisonView from '../components/ComparisonView';
 import { Activity, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 
+const DEFAULT_ORIGINAL_IMAGE = 'https://images.unsplash.com/photo-1543352632-5a4b24e4d2a6?w=800';
+const DEFAULT_IMPROVED_IMAGE = 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800';
+
 export default function AnalysisDetail() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAppStore();
@@ -15,74 +18,87 @@ export default function AnalysisDetail() {
 
   useEffect(() => {
     if (!id) return;
-    fetchAnalysis();
-  }, [id, user]);
 
-  const fetchAnalysis = async () => {
-    try {
-      // Try fetching from meal_analyses first (user's personal analyses)
-      if (user) {
-        const { data, error: dbError } = await supabase
-          .from('meal_analyses')
+    let isMounted = true;
+
+    const fetchAnalysis = async () => {
+      setLoading(true);
+      setError('');
+
+      try {
+        if (user) {
+          const { data, error: dbError } = await supabase
+            .from('meal_analyses')
+            .select('*')
+            .eq('id', id)
+            .eq('user_id', user.id)
+            .single();
+
+          if (!isMounted) return;
+
+          if (!dbError && data) {
+            setAnalysis({
+              original: {
+                ...data.original_nutrition,
+                image: data.original_nutrition?.image || data.image_url || DEFAULT_ORIGINAL_IMAGE
+              },
+              improved: {
+                ...data.improved_nutrition,
+                image: data.improved_nutrition?.image || data.image_url || DEFAULT_IMPROVED_IMAGE
+              },
+              changes: data.changes || [],
+              swaps: data.swaps || [],
+              cookingMethod: data.cooking_method || { original: 'N/A', improved: 'N/A', benefit: '' },
+              portionTip: data.portion_tip || 'Enjoy in moderation'
+            });
+            return;
+          }
+        }
+
+        const { data: libData, error: libError } = await supabase
+          .from('meal_library')
           .select('*')
           .eq('id', id)
-          .eq('user_id', user.id)
           .single();
 
-        if (!dbError && data) {
+        if (!isMounted) return;
+
+        if (!libError && libData) {
           setAnalysis({
             original: {
-              ...data.original_nutrition,
-              image: data.image_url || `https://images.unsplash.com/photo-1543352632-5a4b24e4d2a6?w=800`
+              ...libData.original_nutrition,
+              image: libData.original_nutrition?.image || libData.image_url || DEFAULT_ORIGINAL_IMAGE
             },
             improved: {
-              ...data.improved_nutrition,
-              image: `https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800`
+              ...libData.improved_nutrition,
+              image: libData.improved_nutrition?.image || libData.image_url || DEFAULT_IMPROVED_IMAGE
             },
-            changes: data.changes || [],
-            swaps: data.swaps || [],
-            cookingMethod: data.cooking_method || { original: 'N/A', improved: 'N/A', benefit: '' },
-            portionTip: data.portion_tip || 'Enjoy in moderation'
+            changes: libData.changes || [],
+            swaps: libData.swaps || [],
+            cookingMethod: libData.cooking_method || { original: 'N/A', improved: 'N/A', benefit: '' },
+            portionTip: libData.portion_tip || 'Enjoy in moderation'
           });
-          setLoading(false);
           return;
         }
+
+        setError('Analysis not found');
+      } catch (err) {
+        if (!isMounted) return;
+        console.error(err);
+        setError('Failed to load analysis');
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
+    };
 
-      // Try fetching from meal_library (public library items)
-      const { data: libData, error: libError } = await supabase
-        .from('meal_library')
-        .select('*')
-        .eq('id', id)
-        .single();
+    fetchAnalysis();
 
-      if (!libError && libData) {
-        setAnalysis({
-          original: {
-            ...libData.original_nutrition,
-            image: libData.image_url || `https://images.unsplash.com/photo-1543352632-5a4b24e4d2a6?w=800`
-          },
-          improved: {
-            ...libData.improved_nutrition,
-            image: libData.image_url || `https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800`
-          },
-          changes: libData.changes || [],
-          swaps: libData.swaps || [],
-          cookingMethod: libData.cooking_method || { original: 'N/A', improved: 'N/A', benefit: '' },
-          portionTip: libData.portion_tip || 'Enjoy in moderation'
-        });
-        setLoading(false);
-        return;
-      }
-
-      setError('Analysis not found');
-    } catch (err) {
-      console.error(err);
-      setError('Failed to load analysis');
-    } finally {
-      setLoading(false);
-    }
-  };
+    return () => {
+      isMounted = false;
+    };
+  }, [id, user]);
 
   if (loading) {
     return (

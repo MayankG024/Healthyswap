@@ -211,7 +211,7 @@ export const newMeals3: Prisma.MealLibraryCreateInput[] = [
     improvedNutrition: { name: 'Mocha Bone Broth', calories: 80, protein: 12, carbs: 4, fat: 2, fiber: 2, sugar: 0 },
     changes: [
       { type: 'decrease', label: 'Sugar', amount: '-100%' },
-      { type: 'increase', label: 'Gut Nutrients', amount: '+100%' }
+      { type: 'increase', label: 'Collagen & Amino Acids', amount: '+100%' }
     ],
     swaps: [
       { original: 'Milk & Espresso Base', replacement: 'Unsalted Beef Bone Broth', rationale: 'Bone broth provides massive amounts of collagen and amino acids for gut repair, with a savory depth that pairs with cocoa.' },

@@ -8,7 +8,13 @@ import { newMeals3 } from './new_meals_3.js';
 
 dotenv.config();
 
-const pool = new Pool({ connectionString: process.env.DIRECT_URL });
+const directUrl = process.env.DIRECT_URL;
+
+if (!directUrl) {
+  throw new Error('DIRECT_URL is required to seed the database.');
+}
+
+const pool = new Pool({ connectionString: directUrl });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
@@ -467,4 +473,5 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });

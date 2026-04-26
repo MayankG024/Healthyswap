@@ -209,20 +209,44 @@ export default function MealLibrary() {
           <div className="flex flex-wrap items-center gap-2 mb-8">
             {activeHealth !== 'all' && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-bold">
-                {activeHealth} <X className="w-3.5 h-3.5 cursor-pointer" onClick={() => setActiveHealth('all')} />
+                {activeHealth}
+                <button
+                  type="button"
+                  onClick={() => setActiveHealth('all')}
+                  aria-label={`Remove ${activeHealth} filter`}
+                  className="inline-flex rounded-full p-0.5 hover:bg-emerald-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
+                >
+                  <X className="w-3.5 h-3.5" aria-hidden="true" />
+                </button>
               </span>
             )}
             {activeFoodType !== 'all' && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-bold">
-                {activeFoodType} <X className="w-3.5 h-3.5 cursor-pointer" onClick={() => setActiveFoodType('all')} />
+                {activeFoodType}
+                <button
+                  type="button"
+                  onClick={() => setActiveFoodType('all')}
+                  aria-label={`Remove ${activeFoodType} filter`}
+                  className="inline-flex rounded-full p-0.5 hover:bg-orange-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+                >
+                  <X className="w-3.5 h-3.5" aria-hidden="true" />
+                </button>
               </span>
             )}
             {activeCuisine !== 'All Cuisines' && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-bold">
-                {activeCuisine} <X className="w-3.5 h-3.5 cursor-pointer" onClick={() => setActiveCuisine('All Cuisines')} />
+                {activeCuisine}
+                <button
+                  type="button"
+                  onClick={() => setActiveCuisine('All Cuisines')}
+                  aria-label={`Remove ${activeCuisine} filter`}
+                  className="inline-flex rounded-full p-0.5 hover:bg-purple-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+                >
+                  <X className="w-3.5 h-3.5" aria-hidden="true" />
+                </button>
               </span>
             )}
-            <button onClick={resetFilters} className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-bold hover:bg-gray-200 transition-colors">
+            <button type="button" onClick={resetFilters} className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-bold hover:bg-gray-200 transition-colors">
               <RotateCcw className="w-3.5 h-3.5" /> Reset All
             </button>
           </div>

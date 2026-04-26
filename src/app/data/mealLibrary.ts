@@ -140,5 +140,6 @@ export const cuisineFilters = [
   'Korean',
   'Thai',
   'American',
+  'French',
   'Middle Eastern',
 ];
