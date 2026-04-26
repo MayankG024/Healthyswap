@@ -128,7 +128,6 @@ export default function GroceryList() {
             .from('grocery_lists')
             .update({
               items: nextItems,
-              updated_at: new Date().toISOString(),
             })
             .eq('id', existingGroceryList.id)
         : supabase.from('grocery_lists').insert({
@@ -136,7 +135,6 @@ export default function GroceryList() {
             user_id: user.id,
             plan_id: planId,
             items: nextItems,
-            updated_at: new Date().toISOString(),
           });
 
       const { error } = await writeQuery;

@@ -242,7 +242,6 @@ export default function MealPlanner() {
           .from('grocery_lists')
           .update({
             items,
-            updated_at: new Date().toISOString(),
           })
           .eq('id', existingGroceryList.id)
       : supabase.from('grocery_lists').insert({
@@ -250,7 +249,6 @@ export default function MealPlanner() {
           user_id: user.id,
           plan_id: planId,
           items,
-          updated_at: new Date().toISOString(),
         });
 
     const { error } = await writeQuery;

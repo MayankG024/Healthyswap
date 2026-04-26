@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
 import { useAppStore } from '../store/useAppStore';
 import { motion } from 'motion/react';
-import { User, Settings, Save, LogOut } from 'lucide-react';
+import { User, Settings, Save, LogOut, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
+import { Checkbox } from '../components/ui/checkbox';
 
 const healthGoalOptions = [
   'Lose weight',
@@ -29,6 +31,100 @@ const dietaryPreferenceOptions = [
   'Jain',
 ];
 
+type MultiSelectDropdownProps = {
+  label: string;
+  options: string[];
+  selected: string[];
+  placeholder: string;
+  helperText: string;
+  onChange: (nextValues: string[]) => void;
+  exclusiveOption?: string;
+};
+
+function MultiSelectDropdown({
+  label,
+  options,
+  selected,
+  placeholder,
+  helperText,
+  onChange,
+  exclusiveOption,
+}: MultiSelectDropdownProps) {
+  const displayValue =
+    selected.length === 0
+      ? placeholder
+      : selected.length <= 2
+        ? selected.join(', ')
+        : `${selected.length} selected`;
+
+  const toggleOption = (option: string, checked: boolean) => {
+    if (checked) {
+      if (exclusiveOption && option === exclusiveOption) {
+        onChange([exclusiveOption]);
+        return;
+      }
+
+      const withoutExclusive = exclusiveOption
+        ? selected.filter((value) => value !== exclusiveOption)
+        : selected;
+
+      if (withoutExclusive.includes(option)) {
+        onChange(withoutExclusive);
+        return;
+      }
+
+      onChange([...withoutExclusive, option]);
+      return;
+    }
+
+    onChange(selected.filter((value) => value !== option));
+  };
+
+  return (
+    <div>
+      <label className="block text-sm font-black text-gray-700 uppercase tracking-wider mb-2">{label}</label>
+      <Popover>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className="w-full px-6 py-4 bg-[#FFF8E1] border-2 border-transparent rounded-2xl focus:outline-none focus:border-[#FFD93D] font-bold transition-all flex items-center justify-between gap-3"
+            aria-label={`Select ${label}`}
+          >
+            <span className={`truncate text-left ${selected.length === 0 ? 'text-gray-500' : 'text-gray-900'}`}>
+              {displayValue}
+            </span>
+            <ChevronDown className="w-5 h-5 text-gray-500 shrink-0" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          align="start"
+          className="w-[var(--radix-popover-trigger-width)] bg-white border-2 border-gray-100 rounded-2xl p-2"
+        >
+          <div className="max-h-56 overflow-y-auto space-y-1 pr-1">
+            {options.map((option) => {
+              const isChecked = selected.includes(option);
+
+              return (
+                <label
+                  key={option}
+                  className="flex items-center gap-3 rounded-xl px-3 py-2 cursor-pointer hover:bg-[#FFF8E1]"
+                >
+                  <Checkbox
+                    checked={isChecked}
+                    onCheckedChange={(checked) => toggleOption(option, checked === true)}
+                  />
+                  <span className="text-sm font-bold text-gray-800">{option}</span>
+                </label>
+              );
+            })}
+          </div>
+        </PopoverContent>
+      </Popover>
+      <p className="mt-2 text-xs font-bold text-gray-500">{helperText}</p>
+    </div>
+  );
+}
+
 function normalizeTextArray(value: unknown): string[] {
   if (Array.isArray(value)) {
     return value.filter((item): item is string => typeof item === 'string');
@@ -44,6 +140,17 @@ function normalizeTextArray(value: unknown): string[] {
   return [];
 }
 
+function parseOptionalNumber(value: string, parser: (trimmedValue: string) => number): number | null {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  const parsed = parser(trimmed);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 export default function Profile() {
   const { user, setUser, setSession } = useAppStore();
   const navigate = useNavigate();
@@ -55,7 +162,7 @@ export default function Profile() {
     activity_level: 'moderate',
     goals: [] as string[],
     diet_preferences: [] as string[],
-    allergies: ''
+    allergies: [] as string[]
   });
 
   useEffect(() => {
@@ -76,13 +183,13 @@ export default function Profile() {
       
       if (data) {
         setProfile({
-          age: data.age || '',
-          height: data.height || '',
-          weight: data.weight || '',
+          age: data.age != null ? String(data.age) : '',
+          height: data.height != null ? String(data.height) : '',
+          weight: data.weight != null ? String(data.weight) : '',
           activity_level: data.activity_level || 'moderate',
           goals: normalizeTextArray(data.goals),
           diet_preferences: normalizeTextArray(data.diet_preferences),
-          allergies: data.allergies || ''
+          allergies: normalizeTextArray(data.allergies)
         });
       }
     } catch (error) {
@@ -93,13 +200,41 @@ export default function Profile() {
   const handleSave = async () => {
     if (!user) return;
     setLoading(true);
+
+    const parsedAge = parseOptionalNumber(profile.age, (value) => Number.parseInt(value, 10));
+    const parsedHeight = parseOptionalNumber(profile.height, Number.parseFloat);
+    const parsedWeight = parseOptionalNumber(profile.weight, Number.parseFloat);
+
+    if (profile.age.trim() && (parsedAge === null || !Number.isInteger(parsedAge))) {
+      toast.error('Age must be a whole number.');
+      setLoading(false);
+      return;
+    }
+
+    if (profile.height.trim() && parsedHeight === null) {
+      toast.error('Height must be a valid number.');
+      setLoading(false);
+      return;
+    }
+
+    if (profile.weight.trim() && parsedWeight === null) {
+      toast.error('Weight must be a valid number.');
+      setLoading(false);
+      return;
+    }
     
     try {
       const { error } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
-          ...profile
+          age: parsedAge,
+          height: parsedHeight,
+          weight: parsedWeight,
+          activity_level: profile.activity_level,
+          goals: profile.goals,
+          diet_preferences: profile.diet_preferences,
+          allergies: profile.allergies,
         });
         
       if (error) throw error;
@@ -217,34 +352,23 @@ export default function Profile() {
                   <option value="very_active">Very Active (Intense daily exercise)</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-black text-gray-700 uppercase tracking-wider mb-2">Health Goals</label>
-                <select
-                  multiple
-                  value={profile.goals}
-                  onChange={e => setProfile({...profile, goals: Array.from(e.target.selectedOptions, (option) => option.value)})}
-                  className="w-full px-6 py-4 h-36 bg-[#FFF8E1] border-2 border-transparent rounded-2xl focus:outline-none focus:border-[#FFD93D] font-bold transition-all"
-                >
-                  {healthGoalOptions.map((goal) => (
-                    <option key={goal} value={goal}>{goal}</option>
-                  ))}
-                </select>
-                <p className="mt-2 text-xs font-bold text-gray-500">Select one or more goals (Ctrl/Cmd + click).</p>
-              </div>
-              <div>
-                <label className="block text-sm font-black text-gray-700 uppercase tracking-wider mb-2">Dietary Preferences</label>
-                <select
-                  multiple
-                  value={profile.diet_preferences}
-                  onChange={e => setProfile({...profile, diet_preferences: Array.from(e.target.selectedOptions, (option) => option.value)})}
-                  className="w-full px-6 py-4 h-36 bg-[#FFF8E1] border-2 border-transparent rounded-2xl focus:outline-none focus:border-[#FFD93D] font-bold transition-all"
-                >
-                  {dietaryPreferenceOptions.map((preference) => (
-                    <option key={preference} value={preference}>{preference}</option>
-                  ))}
-                </select>
-                <p className="mt-2 text-xs font-bold text-gray-500">Select one or more preferences (Ctrl/Cmd + click).</p>
-              </div>
+              <MultiSelectDropdown
+                label="Health Goals"
+                options={healthGoalOptions}
+                selected={profile.goals}
+                placeholder="Choose health goals"
+                helperText="Click to select one or more goals."
+                onChange={(goals) => setProfile({ ...profile, goals })}
+              />
+              <MultiSelectDropdown
+                label="Dietary Preferences"
+                options={dietaryPreferenceOptions}
+                selected={profile.diet_preferences}
+                placeholder="Choose dietary preferences"
+                helperText="Click to select one or more preferences."
+                exclusiveOption="None"
+                onChange={(diet_preferences) => setProfile({ ...profile, diet_preferences })}
+              />
             </div>
           </div>
 
