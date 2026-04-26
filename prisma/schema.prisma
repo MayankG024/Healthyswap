@@ -1,0 +1,113 @@
+// Prisma schema for HealthySwap
+// Uses Supabase PostgreSQL as the datasource
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["public"]
+}
+
+model Profile {
+  id              String   @id @db.Uuid
+  age             Int?
+  height          Decimal? @db.Decimal
+  weight          Decimal? @db.Decimal
+  activityLevel   String?  @map("activity_level")
+  goals           String[] @default([])
+  dietPreferences String[] @default([]) @map("diet_preferences")
+  allergies       String[] @default([])
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("profiles")
+  @@schema("public")
+}
+
+model MealAnalysis {
+  id               String   @id @default(uuid()) @db.Uuid
+  userId           String?  @map("user_id") @db.Uuid
+  imageUrl         String?  @map("image_url")
+  originalName     String   @map("original_name")
+  originalNutrition Json    @map("original_nutrition")
+  improvedNutrition Json    @map("improved_nutrition")
+  changes          Json
+  swaps            Json
+  cookingMethod    Json     @map("cooking_method")
+  portionTip       String?  @map("portion_tip")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("meal_analyses")
+  @@schema("public")
+}
+
+model MealLibrary {
+  id                String   @id @default(uuid()) @db.Uuid
+  name              String
+  originalNutrition Json     @map("original_nutrition")
+  improvedNutrition Json     @map("improved_nutrition")
+  changes           Json
+  swaps             Json
+  cookingMethod     Json     @map("cooking_method")
+  portionTip        String?  @map("portion_tip")
+  cuisine           String?
+  foodType          String?  @map("food_type")
+  healthTags        String[] @default([]) @map("health_tags")
+  imageUrl          String?  @map("image_url")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  mealPlanItems MealPlanItem[]
+
+  @@map("meal_library")
+  @@schema("public")
+}
+
+model MealPlan {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  weekStart DateTime @map("week_start") @db.Date
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  items MealPlanItem[]
+
+  @@unique([userId, weekStart])
+  @@map("meal_plans")
+  @@schema("public")
+}
+
+model MealPlanItem {
+  id         String @id @default(uuid()) @db.Uuid
+  planId     String @map("plan_id") @db.Uuid
+  mealId     String @map("meal_id") @db.Uuid
+  dayOfWeek  Int    @map("day_of_week") // 0=Mon, 6=Sun
+  mealSlot   String @map("meal_slot") // "breakfast" | "lunch" | "dinner"
+
+  plan MealPlan    @relation(fields: [planId], references: [id], onDelete: Cascade)
+  meal MealLibrary @relation(fields: [mealId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, dayOfWeek, mealSlot])
+  @@map("meal_plan_items")
+  @@schema("public")
+}
+
+model GroceryList {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  planId    String   @map("plan_id") @db.Uuid
+  items     Json     // [{ name, category, quantity, unit, checked }]
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("grocery_lists")
+  @@schema("public")
+}
+
+model schema_migrations {
+  version String @id
+
+  @@map("schema_migrations")
+  @@schema("public")
+}

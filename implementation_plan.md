@@ -44,9 +44,7 @@ We will use Supabase as our Backend-as-a-Service (BaaS) and keep the frontend as
 #### Supabase Edge Functions
 - [x] `analyze-meal`: An Edge Function (Deno) that receives an image URL, calls the Gemini API to detect food and nutrition, applies transformation rules, and returns the healthy swaps.
 
----
-
-### 3. Frontend Architecture (React + Vite)
+## Phase 4: Frontend Architecture (React + Vite)
 Transition from state-based navigation to real routing using `react-router-dom`.
 
 #### [MODIFY] `package.json`
@@ -77,9 +75,9 @@ Transition from state-based navigation to real routing using `react-router-dom`.
 
 ---
 
-### 4. Database-Backed Meal Library
-- Migrate the static `mealDatabase` in the current `mealAnalyzer.ts` into a database seed script (`server/prisma/seed.ts`).
-- Expand the library to include the new requested categories (Indian, Mexican, Desserts, Beverages, etc.).
+## Phase 5: Database-Backed Meal Library
+- [x] Migrate the static `mealDatabase` in the current `mealAnalyzer.ts` into a database seed script (`server/prisma/seed.ts`).
+- [x] Expand the library to include the new requested categories (Indian, Mexican, Desserts, Beverages, etc.).
 
 ## Verification Plan
 
@@ -92,3 +90,43 @@ Transition from state-based navigation to real routing using `react-router-dom`.
 2. **Analysis Flow**: Upload a food image. Verify that the request hits the backend, processes via the AI Vision API, saves to the database, and displays the dynamic results on the frontend.
 3. **Meal Library**: Navigate to `/meal-library` and verify data is fetched from the PostgreSQL database and filtering works.
 4. **Planner & Grocery**: Generate a weekly meal plan and ensure the grocery list accurately reflects the required ingredients.
+
+## Phase 6: Full Feature Build-Out (Next Steps)
+
+### 1. Meal Library Expansion
+- [ ] **Data Model:** Ensure `meal_library` uses `cuisine`, `food_type`, `health_tags`, `original_nutrition`, `improved_nutrition`, `changes`, `swaps`, `cooking_method`, `portion_tip`, `image_url`.
+- [ ] **Seed Data:** Seed Supabase `meal_library` with a broad dataset across these filters.
+- [ ] **UI Upgrade:** Update `MealLibrary` to support three filter groups: health goal, food type (Dishes, Snacks, Beverages, Desserts), and cuisine (Indian, South Indian, North Indian, Chinese, Italian, Mexican, Mediterranean, Japanese, Korean, Thai, American, Middle Eastern).
+- [ ] **Filter State:** Show active filter chips and a reset button.
+- [ ] **Data Fetching:** Replace fallback-only category behavior with Supabase-first data and local fallback using the same schema.
+- [ ] **Navigation:** Route card clicks to a real detail page `/analysis/:id`.
+
+### 2. Analysis Detail Flow
+- [ ] **Route:** Add route `/analysis/:id`.
+- [ ] **Detail Page:** Create an analysis detail page that fetches one `meal_analyses` row by id for logged-in users.
+- [ ] **History Navigation:** Update dashboard history cards to navigate to `/analysis/:id` instead of loading the result into global state and redirecting home.
+- [ ] **Rendering:** Reuse `ComparisonView` for saved analysis rendering.
+
+### 3. Meal Planner + Grocery List
+- [ ] **Database Setup:** Extend `schema.sql` with `meal_plans`, `meal_plan_items`, and `grocery_lists` if not already fully present.
+- [ ] **Planner UI:** Replace the placeholder `MealPlanner` cards with selectable meals from `meal_library`.
+- [ ] **Time Slots:** Support weekly breakfast/lunch/dinner slots.
+- [ ] **Grocery Route:** Add `/grocery-list` route that groups ingredients from planned meals into Produce, Protein, Grains, Dairy, Spices, and Other.
+- [ ] **API Calls:** Add planner tables/APIs through Supabase direct client calls (create/update weekly plan, add/remove meal slot item, generate grocery list from plan).
+
+### 4. AI/Image Pipeline Hardening
+- [ ] **Edge Function:** Update the Supabase Edge Function so uploaded image URLs are fetched, converted to base64, and sent to Gemini as image input instead of text-only prompting.
+- [ ] **Validation:** Add JSON response validation before inserting into `meal_analyses`.
+- [ ] **Error Handling:** If Gemini fails, return a structured error to the frontend and keep the local deterministic fallback.
+
+## Phase 7: Testing Plan
+- [ ] **Build Check:** `npm run build`.
+- [ ] **Manual Auth Check:** log in with Google, confirm dashboard and profile load.
+- [ ] **Meal Library Check:** verify cuisine, food type, health filters, search, reset, empty state, and card navigation.
+- [ ] **Analysis Check:** upload or enter a meal, confirm Supabase Edge Function saves a row, dashboard lists it, and `/analysis/:id` renders it.
+- [ ] **Planner Check:** add meals to a week, refresh page, confirm persistence.
+- [ ] **Grocery Check:** generate a grocery list from planned meals and verify grouped ingredients appear.
+- [ ] **Failure Check:** run with missing Supabase env vars and confirm the app shows graceful fallbacks instead of crashing.
+
+## Open Questions
+- Do you want me to proceed with Phase 4 execution (starting with the Meal Library Expansion)?

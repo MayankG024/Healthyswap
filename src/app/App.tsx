@@ -13,6 +13,7 @@ import { useAppStore } from './store/useAppStore';
 import Dashboard from './pages/Dashboard';
 import MealPlanner from './pages/MealPlanner';
 import Profile from './pages/Profile';
+import AnalysisDetail from './pages/AnalysisDetail';
 
 export default function App() {
   const { setSession, setUser } = useAppStore();
@@ -42,7 +43,8 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/meal-library" element={<MealLibrary onViewNutrition={() => {}} />} />
+        <Route path="/meal-library" element={<MealLibrary />} />
+        <Route path="/analysis/:id" element={<AnalysisDetail />} />
         <Route path="/nutrition/:id" element={<NutritionBreakdown mealName="Meal" />} />
         <Route path="/meal-planner" element={<MealPlanner />} />
         <Route path="/profile" element={<Profile />} />

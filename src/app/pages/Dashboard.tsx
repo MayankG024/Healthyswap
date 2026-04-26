@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 export default function Dashboard() {
-  const { user, setAnalysisResult } = useAppStore();
+  const { user } = useAppStore();
   const navigate = useNavigate();
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,15 +52,7 @@ export default function Dashboard() {
   };
 
   const handleViewAnalysis = (item: any) => {
-    setAnalysisResult({
-      original: item.original_nutrition,
-      improved: item.improved_nutrition,
-      changes: item.changes,
-      swaps: item.swaps,
-      cookingMethod: item.cooking_method,
-      portionTip: item.portion_tip
-    });
-    navigate('/');
+    navigate(`/analysis/${item.id}`);
   };
 
   if (loading) {
