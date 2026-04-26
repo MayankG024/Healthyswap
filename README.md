@@ -113,6 +113,7 @@ If you are setting this up locally, please follow these steps since the backend 
    ```env
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   VITE_AUTH_REDIRECT_URL=https://your-app-domain/dashboard
    ```
 
 3. **Supabase Database Setup**
@@ -120,9 +121,17 @@ If you are setting this up locally, please follow these steps since the backend 
    - `profiles` table
    - `meal_analyses` table
    - `meal_library` table
+   - `meal_plans`, `meal_plan_items`, and `grocery_lists` tables
    - Storage buckets and RLS policies
 
-4. **Supabase Edge Function Deployment**
+4. **Google Auth Provider Setup**
+   The app calls Supabase with `provider: "google"`. If Supabase returns `{"code":400,"error_code":"validation_failed","msg":"Unsupported provider: provider is not enabled"}`, Google is not enabled for the Supabase project configured by `VITE_SUPABASE_URL`.
+   - In Supabase, open Authentication -> Providers -> Google.
+   - Enable Google and add the Google OAuth client ID and secret.
+   - In Google Cloud Console, add this callback URL to the OAuth client: `https://<your-supabase-project-ref>.supabase.co/auth/v1/callback`.
+   - In Supabase Authentication URL configuration, set the production site URL and add `https://your-app-domain/dashboard` to the allowed redirect URLs.
+
+5. **Supabase Edge Function Deployment**
    Make sure you have the Supabase CLI installed, and run:
    ```bash
    supabase secrets set --env-file ./supabase/.env.local
@@ -167,4 +176,3 @@ Found a bug? Have a meal you want added? PRs and issues welcome! I'm most active
 ---
 
 **Built with dedication by Mayank**
-  

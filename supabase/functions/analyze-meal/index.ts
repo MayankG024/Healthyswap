@@ -1,7 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from 'npm:@supabase/supabase-js';
-import { GoogleGenerativeAI } from 'npm:@google/genai'; // Using standard google genai
-// Alternatively you can use fetch directly to Google API for Edge functions
+import { parseGeminiJson, validateAnalysisPayload } from './analysisValidation.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -35,16 +34,11 @@ Deno.serve(async (req) => {
       throw new Error("GEMINI_API_KEY is missing");
     }
 
-    // Call Gemini API (using fetch as Deno runtime might have issues with some Node packages)
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
-    
-    // In a real app, we'd fetch the image from imageUrl and convert to base64, 
-    // or just pass the text if no image. For simplicity here we ask Gemini based on text + rules.
-    // If imageUrl is provided, we would ideally fetch the image and send as base64.
-    
+
     const promptText = `
       Analyze this meal: "${mealName}".
-      If there is an image, consider it too.
+      If an image is attached, use it as the primary signal for identifying the food.
       Provide a JSON response with the following structure (strictly JSON, no markdown blocks):
       {
         "original": {
@@ -83,13 +77,17 @@ Deno.serve(async (req) => {
       Make sure the improved version represents a much healthier alternative of the same cuisine/type, applying rules like reducing saturated fats, refined carbs, and boosting protein/fiber.
     `;
 
+    const parts: Array<Record<string, unknown>> = [{ text: promptText }];
+    const imagePart = imageUrl ? await fetchImagePart(imageUrl) : null;
+    if (imagePart) {
+      parts.push(imagePart);
+    }
+
     const geminiBody = {
       contents: [{
-        parts: [{ text: promptText }]
+        parts
       }]
     };
-
-    // If we want to support actual image base64, we can add it to the parts array here.
 
     const geminiResponse = await fetch(geminiUrl, {
       method: 'POST',
@@ -98,6 +96,17 @@ Deno.serve(async (req) => {
     });
 
     const geminiData = await geminiResponse.json();
+
+    if (!geminiResponse.ok) {
+      return new Response(JSON.stringify({
+        error: 'Gemini request failed',
+        code: 'gemini_request_failed',
+        details: geminiData.error?.message || 'Unknown Gemini API error'
+      }), {
+        status: 502,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     let resultText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
     
@@ -105,10 +114,7 @@ Deno.serve(async (req) => {
       throw new Error("Invalid response from Gemini API");
     }
 
-    // Clean up potential markdown formatting from Gemini
-    resultText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
-    
-    const analysisResult = JSON.parse(resultText);
+    const analysisResult = validateAnalysisPayload(parseGeminiJson(resultText));
 
     // Save to database
     const { data: insertData, error: dbError } = await supabaseClient
@@ -135,9 +141,47 @@ Deno.serve(async (req) => {
 
   } catch (error: any) {
     console.error(error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({
+      error: error.message,
+      code: 'analysis_failed'
+    }), {
       status: 400,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
+
+async function fetchImagePart(imageUrl: string): Promise<Record<string, unknown> | null> {
+  const imageResponse = await fetch(imageUrl);
+
+  if (!imageResponse.ok) {
+    throw new Error(`Failed to fetch uploaded image: ${imageResponse.status}`);
+  }
+
+  const mimeType = imageResponse.headers.get('content-type') || 'image/jpeg';
+  if (!mimeType.startsWith('image/')) {
+    throw new Error(`Uploaded file must be an image. Received ${mimeType}.`);
+  }
+
+  const imageBuffer = await imageResponse.arrayBuffer();
+
+  return {
+    inline_data: {
+      mime_type: mimeType,
+      data: arrayBufferToBase64(imageBuffer),
+    },
+  };
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000;
+  let binary = '';
+
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    const chunk = bytes.subarray(index, index + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+
+  return btoa(binary);
+}

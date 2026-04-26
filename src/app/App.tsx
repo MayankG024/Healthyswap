@@ -14,6 +14,7 @@ import Dashboard from './pages/Dashboard';
 import MealPlanner from './pages/MealPlanner';
 import Profile from './pages/Profile';
 import AnalysisDetail from './pages/AnalysisDetail';
+import GroceryList from './pages/GroceryList';
 
 export default function App() {
   const { setSession, setUser } = useAppStore();
@@ -47,6 +48,7 @@ export default function App() {
         <Route path="/analysis/:id" element={<AnalysisDetail />} />
         <Route path="/nutrition/:id" element={<NutritionBreakdown mealName="Meal" />} />
         <Route path="/meal-planner" element={<MealPlanner />} />
+        <Route path="/grocery-list" element={<GroceryList />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/personalized" element={<PersonalizedRecommendations />} />
       </Routes>
