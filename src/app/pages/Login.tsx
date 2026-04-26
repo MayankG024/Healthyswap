@@ -10,7 +10,11 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     try {
       setIsLoading(true);
-      const redirectTo = import.meta.env.VITE_AUTH_REDIRECT_URL || `${window.location.origin}/dashboard`;
+      const configuredRedirect = import.meta.env.VITE_AUTH_REDIRECT_URL?.trim();
+      const defaultRedirect = `${window.location.origin}/dashboard`;
+      const redirectTo = configuredRedirect && !configuredRedirect.includes('/Healthyswap/index.html')
+        ? configuredRedirect
+        : defaultRedirect;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {

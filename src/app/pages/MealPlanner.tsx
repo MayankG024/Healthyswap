@@ -17,6 +17,7 @@ import { useAppStore } from '../store/useAppStore';
 import { supabase } from '../utils/supabase';
 import {
   buildGroceryItems,
+  createClientUuid,
   getWeekStartISO,
   MealSlot,
   normalizeMealLibraryRow,
@@ -130,7 +131,7 @@ export default function MealPlanner() {
 
     const { data: createdPlan, error: createError } = await supabase
       .from('meal_plans')
-      .insert({ user_id: userId, week_start: weekStartDate })
+      .insert({ id: createClientUuid(), user_id: userId, week_start: weekStartDate })
       .select('id')
       .single();
 
@@ -145,17 +146,30 @@ export default function MealPlanner() {
     setSavingSlot(slotKey);
 
     try {
-      const { data, error } = await supabase
+      const { data: existingSlot, error: existingSlotError } = await supabase
         .from('meal_plan_items')
-        .upsert(
-          {
+        .select('id')
+        .eq('plan_id', planId)
+        .eq('day_of_week', pickerSlot.dayOfWeek)
+        .eq('meal_slot', pickerSlot.mealSlot)
+        .maybeSingle();
+
+      if (existingSlotError) throw existingSlotError;
+
+      const writeQuery = existingSlot
+        ? supabase
+            .from('meal_plan_items')
+            .update({ meal_id: meal.id })
+            .eq('id', existingSlot.id)
+        : supabase.from('meal_plan_items').insert({
+            id: createClientUuid(),
             plan_id: planId,
             meal_id: meal.id,
             day_of_week: pickerSlot.dayOfWeek,
             meal_slot: pickerSlot.mealSlot,
-          },
-          { onConflict: 'plan_id,day_of_week,meal_slot' },
-        )
+          });
+
+      const { data, error } = await writeQuery
         .select('id')
         .single();
 
@@ -212,15 +226,34 @@ export default function MealPlanner() {
     }
 
     const items = buildGroceryItems(plannedItems);
-    const { error } = await supabase.from('grocery_lists').upsert(
-      {
-        user_id: user.id,
-        plan_id: planId,
-        items,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'plan_id' },
-    );
+    const { data: existingGroceryList, error: existingGroceryListError } = await supabase
+      .from('grocery_lists')
+      .select('id')
+      .eq('plan_id', planId)
+      .maybeSingle();
+
+    if (existingGroceryListError) {
+      toast.error(existingGroceryListError.message || 'Failed to generate grocery list');
+      return;
+    }
+
+    const writeQuery = existingGroceryList
+      ? supabase
+          .from('grocery_lists')
+          .update({
+            items,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existingGroceryList.id)
+      : supabase.from('grocery_lists').insert({
+          id: createClientUuid(),
+          user_id: user.id,
+          plan_id: planId,
+          items,
+          updated_at: new Date().toISOString(),
+        });
+
+    const { error } = await writeQuery;
 
     if (error) {
       toast.error(error.message || 'Failed to generate grocery list');

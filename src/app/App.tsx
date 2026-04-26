@@ -1,20 +1,20 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import MealLibrary from './components/MealLibrary';
-import NutritionBreakdown from './components/NutritionBreakdown';
-import PersonalizedRecommendations from './components/PersonalizedRecommendations';
 import { Toaster } from 'sonner';
 import { supabase } from './utils/supabase';
 import { useAppStore } from './store/useAppStore';
 
-import Dashboard from './pages/Dashboard';
-import MealPlanner from './pages/MealPlanner';
-import Profile from './pages/Profile';
-import AnalysisDetail from './pages/AnalysisDetail';
-import GroceryList from './pages/GroceryList';
+const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./pages/Login'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const MealPlanner = lazy(() => import('./pages/MealPlanner'));
+const Profile = lazy(() => import('./pages/Profile'));
+const AnalysisDetail = lazy(() => import('./pages/AnalysisDetail'));
+const GroceryList = lazy(() => import('./pages/GroceryList'));
+const MealLibrary = lazy(() => import('./components/MealLibrary'));
+const NutritionBreakdown = lazy(() => import('./components/NutritionBreakdown'));
+const PersonalizedRecommendations = lazy(() => import('./components/PersonalizedRecommendations'));
 
 export default function App() {
   const { setSession, setUser } = useAppStore();
@@ -39,19 +39,27 @@ export default function App() {
     <div className="min-h-screen bg-white relative overflow-x-hidden">
       <Toaster position="top-center" richColors />
       <Navbar />
-      
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/meal-library" element={<MealLibrary />} />
-        <Route path="/analysis/:id" element={<AnalysisDetail />} />
-        <Route path="/nutrition/:id" element={<NutritionBreakdown mealName="Meal" />} />
-        <Route path="/meal-planner" element={<MealPlanner />} />
-        <Route path="/grocery-list" element={<GroceryList />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/personalized" element={<PersonalizedRecommendations />} />
-      </Routes>
+
+      <Suspense
+        fallback={(
+          <div className="min-h-[70vh] flex items-center justify-center text-[#FF9800] font-bold">
+            Loading...
+          </div>
+        )}
+      >
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/meal-library" element={<MealLibrary />} />
+          <Route path="/analysis/:id" element={<AnalysisDetail />} />
+          <Route path="/nutrition/:id" element={<NutritionBreakdown mealName="Meal" />} />
+          <Route path="/meal-planner" element={<MealPlanner />} />
+          <Route path="/grocery-list" element={<GroceryList />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/personalized" element={<PersonalizedRecommendations />} />
+        </Routes>
+      </Suspense>
     </div>
   );
 }

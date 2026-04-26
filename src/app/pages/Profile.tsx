@@ -6,6 +6,44 @@ import { User, Settings, Save, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
+const healthGoalOptions = [
+  'Lose weight',
+  'Build muscle',
+  'Improve stamina',
+  'Maintain weight',
+  'Manage blood sugar',
+  'Improve heart health',
+  'General wellness',
+];
+
+const dietaryPreferenceOptions = [
+  'None',
+  'Vegetarian',
+  'Vegan',
+  'Keto',
+  'Low-carb',
+  'High-protein',
+  'Gluten-free',
+  'Dairy-free',
+  'Pescatarian',
+  'Jain',
+];
+
+function normalizeTextArray(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === 'string');
+  }
+
+  if (typeof value === 'string') {
+    return value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
 export default function Profile() {
   const { user, setUser, setSession } = useAppStore();
   const navigate = useNavigate();
@@ -15,8 +53,8 @@ export default function Profile() {
     height: '',
     weight: '',
     activity_level: 'moderate',
-    goals: '',
-    diet_preferences: '',
+    goals: [] as string[],
+    diet_preferences: [] as string[],
     allergies: ''
   });
 
@@ -42,8 +80,8 @@ export default function Profile() {
           height: data.height || '',
           weight: data.weight || '',
           activity_level: data.activity_level || 'moderate',
-          goals: data.goals || '',
-          diet_preferences: data.diet_preferences || '',
+          goals: normalizeTextArray(data.goals),
+          diet_preferences: normalizeTextArray(data.diet_preferences),
           allergies: data.allergies || ''
         });
       }
@@ -181,23 +219,31 @@ export default function Profile() {
               </div>
               <div>
                 <label className="block text-sm font-black text-gray-700 uppercase tracking-wider mb-2">Health Goals</label>
-                <input 
-                  type="text" 
+                <select
+                  multiple
                   value={profile.goals}
-                  onChange={e => setProfile({...profile, goals: e.target.value})}
-                  className="w-full px-6 py-4 bg-[#FFF8E1] border-2 border-transparent rounded-2xl focus:outline-none focus:border-[#FFD93D] font-bold transition-all"
-                  placeholder="e.g. Lose weight, Build muscle"
-                />
+                  onChange={e => setProfile({...profile, goals: Array.from(e.target.selectedOptions, (option) => option.value)})}
+                  className="w-full px-6 py-4 h-36 bg-[#FFF8E1] border-2 border-transparent rounded-2xl focus:outline-none focus:border-[#FFD93D] font-bold transition-all"
+                >
+                  {healthGoalOptions.map((goal) => (
+                    <option key={goal} value={goal}>{goal}</option>
+                  ))}
+                </select>
+                <p className="mt-2 text-xs font-bold text-gray-500">Select one or more goals (Ctrl/Cmd + click).</p>
               </div>
               <div>
                 <label className="block text-sm font-black text-gray-700 uppercase tracking-wider mb-2">Dietary Preferences</label>
-                <input 
-                  type="text" 
+                <select
+                  multiple
                   value={profile.diet_preferences}
-                  onChange={e => setProfile({...profile, diet_preferences: e.target.value})}
-                  className="w-full px-6 py-4 bg-[#FFF8E1] border-2 border-transparent rounded-2xl focus:outline-none focus:border-[#FFD93D] font-bold transition-all"
-                  placeholder="e.g. Vegetarian, Keto, None"
-                />
+                  onChange={e => setProfile({...profile, diet_preferences: Array.from(e.target.selectedOptions, (option) => option.value)})}
+                  className="w-full px-6 py-4 h-36 bg-[#FFF8E1] border-2 border-transparent rounded-2xl focus:outline-none focus:border-[#FFD93D] font-bold transition-all"
+                >
+                  {dietaryPreferenceOptions.map((preference) => (
+                    <option key={preference} value={preference}>{preference}</option>
+                  ))}
+                </select>
+                <p className="mt-2 text-xs font-bold text-gray-500">Select one or more preferences (Ctrl/Cmd + click).</p>
               </div>
             </div>
           </div>

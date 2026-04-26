@@ -7,6 +7,7 @@ import { useAppStore } from '../store/useAppStore';
 import { supabase } from '../utils/supabase';
 import {
   buildGroceryItems,
+  createClientUuid,
   getWeekStartISO,
   GroceryCategory,
   GroceryItem,
@@ -114,15 +115,31 @@ export default function GroceryList() {
     setSaving(true);
 
     try {
-      const { error } = await supabase.from('grocery_lists').upsert(
-        {
-          user_id: user.id,
-          plan_id: planId,
-          items: nextItems,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'plan_id' },
-      );
+      const { data: existingGroceryList, error: existingGroceryListError } = await supabase
+        .from('grocery_lists')
+        .select('id')
+        .eq('plan_id', planId)
+        .maybeSingle();
+
+      if (existingGroceryListError) throw existingGroceryListError;
+
+      const writeQuery = existingGroceryList
+        ? supabase
+            .from('grocery_lists')
+            .update({
+              items: nextItems,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', existingGroceryList.id)
+        : supabase.from('grocery_lists').insert({
+            id: createClientUuid(),
+            user_id: user.id,
+            plan_id: planId,
+            items: nextItems,
+            updated_at: new Date().toISOString(),
+          });
+
+      const { error } = await writeQuery;
 
       if (error) throw error;
     } catch (error: any) {
