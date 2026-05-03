@@ -123,6 +123,10 @@ export const fallbackMeals: LibraryMeal[] = [
   meal('fallback-22', 'Baked Apple Yogurt Bowl', 'Apple Pie with Ice Cream', 'American', 'Dessert', 780, 320, 16, ['Weight Loss']),
   meal('fallback-23', 'Greek Yogurt Berry Parfait', 'Ice Cream Sundae', 'Mediterranean', 'Dessert', 700, 280, 22, ['High Protein', 'Weight Loss']),
   meal('fallback-24', 'Dark Chocolate Chia Mousse', 'Chocolate Mousse', 'French', 'Dessert', 590, 310, 12, ['Heart Healthy']),
+  meal('fallback-25', 'Margherita with Almond Flour Crust', 'Classic Margherita Pizza', 'Italian', 'Dish', 800, 400, 20, ['Weight Loss', 'Heart Healthy']),
+  meal('fallback-26', 'Cauliflower Crust Pepperoni', 'Deep Dish Pepperoni Pizza', 'Italian', 'Dish', 1100, 550, 30, ['Weight Loss', 'High Protein']),
+  meal('fallback-27', 'Zucchini Crust Veggie Supreme', 'Stuffed Crust Veggie Pizza', 'Italian', 'Dish', 980, 480, 22, ['Weight Loss', 'Heart Healthy', 'Diabetic Friendly']),
+  meal('fallback-28', 'Whole Wheat BBQ Chicken Pizza', 'BBQ Chicken Pizza', 'American', 'Dish', 950, 520, 36, ['High Protein', 'Weight Loss']),
 ];
 
 export const healthFilters = ['All Meals', 'High Protein', 'Weight Loss', 'Diabetic Friendly', 'Heart Healthy'];

@@ -10,20 +10,6 @@ interface ComparisonViewProps {
 export default function ComparisonView({ analysis }: ComparisonViewProps) {
   return (
     <div className="space-y-8">
-      {/* Success Badge */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8, y: -20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="flex items-center justify-center gap-2 mb-8"
-      >
-        <div className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#CDFF00] via-[#4ADE80] to-[#CDFF00] text-[#78350F] rounded-full shadow-2xl border-4 border-white">
-          <Check className="w-7 h-7" />
-          <span className="text-2xl uppercase tracking-wide" style={{ fontFamily: 'Bebas Neue' }}>
-            ✨ ANALYSIS COMPLETE!
-          </span>
-        </div>
-      </motion.div>
-
       {/* Main Comparison Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Original Meal */}
