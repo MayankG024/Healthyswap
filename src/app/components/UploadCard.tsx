@@ -83,16 +83,16 @@ export default function UploadCard({ onSubmit, isAnalyzing }: UploadCardProps) {
   };
 
   const quickSuggestions = [
-    { text: 'Butter chicken 🐓' },
-    { text: 'Instant noodles 🍜' },
-    { text: 'Fried rice 🍚' },
-    { text: 'Pizza 🍕' },
-    { text: 'Biryani 🍛' },
-    { text: 'Samosa 🥟' },
-    { text: 'Paneer masala 🧀' },
-    { text: 'Chole bhature 🫓' },
-    { text: 'Dosa 🥞' },
-    { text: 'Burger & fries 🍔' }
+    { text: 'Butter chicken' },
+    { text: 'Instant noodles' },
+    { text: 'Fried rice' },
+    { text: 'Pizza' },
+    { text: 'Biryani' },
+    { text: 'Samosa' },
+    { text: 'Paneer masala' },
+    { text: 'Chole bhature' },
+    { text: 'Dosa' },
+    { text: 'Burger & fries' }
   ];
 
   return (

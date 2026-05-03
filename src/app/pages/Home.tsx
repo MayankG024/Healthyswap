@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
@@ -21,6 +22,12 @@ export default function Home() {
     setAnalysisResult,
     reset
   } = useAppStore();
+
+  useEffect(() => {
+    if (analysisResult) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [analysisResult]);
 
   const handleSubmit = async (input: string, image?: File) => {
     setIsAnalyzing(true);
@@ -162,7 +169,7 @@ export default function Home() {
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                 {[
-                  { value: '50K+', label: 'MEALS TRANSFORMED', icon: '🍽️', color: 'bg-[#FFB8D1]', textColor: 'text-[#D81B60]' },
+                  { value: '70+', label: 'MEALS TRANSFORMED', icon: '🍽️', color: 'bg-[#FFB8D1]', textColor: 'text-[#D81B60]' },
                   { value: '40%', label: 'AVG CALORIES CUT', icon: '🔥', color: 'bg-[#FFD93D]', textColor: 'text-[#FF9800]' },
                   { value: '95%', label: 'HAPPY USERS', icon: '😍', color: 'bg-[#A8E6B5]', textColor: 'text-[#2E7D32]' },
                   { value: '1000+', label: 'HEALTHY RECIPES', icon: '📚', color: 'bg-[#C490E4]', textColor: 'text-[#7B1FA2]' }
